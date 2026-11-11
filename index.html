@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QRku - Generator QR Code Gratis</title>
+  <meta name="description" content="Buat QR code dari link atau teks, atur warna dan ukuran, lalu unduh sebagai PNG atau SVG. Gratis, dan isi QR tidak dikirim ke server.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+
+    <header class="topbar">
+      <a class="brand" href="#generator" aria-label="QRku, ke generator">
+        <svg class="brand-mark" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+          <path fill="currentColor" fill-rule="evenodd" d="M5 2h14a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3Zm1 4v12h12V6H6Z"/>
+          <rect fill="currentColor" x="9" y="9" width="6" height="6" rx="1"/>
+        </svg>
+        <span class="brand-name">QRku</span>
+      </a>
+
+      <nav class="tabs" aria-label="Halaman">
+        <a class="tab" href="#generator" data-route="generator">Generator</a>
+        <a class="tab" href="#paket" data-route="paket">Paket</a>
+      </nav>
+
+      <button id="account-button" class="btn btn-secondary account-button" type="button" aria-haspopup="dialog">
+        <img id="account-avatar" class="avatar" alt="" width="20" height="20" referrerpolicy="no-referrer" hidden>
+        <span id="account-label">Masuk</span>
+      </button>
+    </header>
+
+    <!-- ===================== Generator ===================== -->
+    <main id="view-generator" class="view" data-view="generator">
+      <div class="title-row">
+        <h1>Buat QR code</h1>
+        <p class="subline">QR dibuat di perangkatmu. Isinya tidak dikirim ke server.</p>
+      </div>
+
+      <!-- Grid 1152 = 360 + 24 + 432 + 24 + 312 -->
+      <div class="workspace">
+        <div class="col col-settings">
+          <section class="panel panel-content" aria-labelledby="content-title">
+            <h2 id="content-title">Isi QR</h2>
+            <label class="field-label" for="text">Link atau teks</label>
+            <textarea id="text" rows="4" spellcheck="false" placeholder="https://tokosaya.id/menu">https://contoh.id/menu</textarea>
+            <p id="error" class="field-error" role="alert" hidden></p>
+          </section>
+
+          <section class="panel panel-look" aria-labelledby="look-title">
+            <h2 id="look-title">Tampilan</h2>
+
+            <div class="field">
+              <div class="field-head">
+                <label class="field-label" for="size">Ukuran gambar</label>
+                <output class="field-value num" id="size-value" for="size">512 px</output>
+              </div>
+              <input id="size" type="range" min="128" max="1024" step="32" value="512">
+            </div>
+
+            <div class="field-grid">
+              <div class="field">
+                <label class="field-label" for="ecl">Koreksi error</label>
+                <select id="ecl">
+                  <option value="L">Rendah (7%)</option>
+                  <option value="M" selected>Sedang (15%)</option>
+                  <option value="Q">Tinggi (25%)</option>
+                  <option value="H">Tertinggi (30%)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-label" for="margin">Margin (modul)</label>
+                <input id="margin" type="number" min="0" max="10" value="4" inputmode="numeric">
+              </div>
+              <div class="field">
+                <label class="field-label" for="fg">Warna QR</label>
+                <div class="color-field">
+                  <input id="fg" type="color" value="#131416">
+                  <span class="num" id="fg-hex">#131416</span>
+                </div>
+              </div>
+              <div class="field">
+                <label class="field-label" for="bg">Warna latar</label>
+                <div class="color-field">
+                  <input id="bg" type="color" value="#ffffff">
+                  <span class="num" id="bg-hex">#ffffff</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="field-label" id="preset-label">Preset warna</span>
+              <div class="presets" id="presets" role="group" aria-labelledby="preset-label">
+                <button type="button" class="preset" data-fg="#131416" data-bg="#ffffff" style="--swatch:#131416" aria-label="Hitam" title="Hitam"></button>
+                <button type="button" class="preset" data-fg="#12305c" data-bg="#ffffff" style="--swatch:#12305c" aria-label="Biru tua" title="Biru tua"></button>
+                <button type="button" class="preset" data-fg="#0f4d3a" data-bg="#ffffff" style="--swatch:#0f4d3a" aria-label="Hijau tua" title="Hijau tua"></button>
+                <button type="button" class="preset" data-fg="#6b1620" data-bg="#ffffff" style="--swatch:#6b1620" aria-label="Merah marun" title="Merah marun"></button>
+                <button type="button" class="preset" data-fg="#4a2c17" data-bg="#ffffff" style="--swatch:#4a2c17" aria-label="Cokelat tua" title="Cokelat tua"></button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="col col-preview">
+          <section class="panel panel-preview" aria-labelledby="preview-title">
+            <h2 id="preview-title">Pratinjau</h2>
+            <div class="canvas-well">
+              <canvas id="preview" width="512" height="512" role="img" aria-label="Pratinjau QR code"></canvas>
+              <p id="placeholder" class="empty-slot" hidden>Isi link atau teks untuk melihat QR.</p>
+            </div>
+            <div class="actions">
+              <button id="download-png" class="btn btn-primary" type="button" disabled>
+                <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 2v8m0 0L5 7m3 3 3-3M3 13h10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Unduh PNG
+              </button>
+              <button id="download-svg" class="btn btn-secondary" type="button" disabled>Unduh SVG</button>
+            </div>
+          </section>
+        </div>
+
+        <div class="col col-side">
+          <section class="panel panel-ready" aria-labelledby="ready-title">
+            <h2 id="ready-title">Kesiapan pindai</h2>
+            <p id="ready-finding" class="finding">Siap dipindai.</p>
+
+            <dl class="kv">
+              <div class="kv-row">
+                <dt>Kontras warna</dt>
+                <dd><span class="num" id="ready-contrast">-</span> <span class="pill" id="ready-contrast-pill" hidden></span></dd>
+              </div>
+              <div class="kv-row">
+                <dt>Versi QR</dt>
+                <dd class="num" id="ready-version">-</dd>
+              </div>
+              <div class="kv-row">
+                <dt>Gambar</dt>
+                <dd class="num" id="ready-pixels">-</dd>
+              </div>
+              <div class="kv-row">
+                <dt>Margin</dt>
+                <dd><span class="num" id="ready-margin">-</span> <span class="pill" id="ready-margin-pill" hidden></span></dd>
+              </div>
+            </dl>
+
+            <div class="capacity">
+              <div class="capacity-head">
+                <span>Kapasitas terpakai</span>
+                <span class="num" id="capacity-percent">0%</span>
+              </div>
+              <div class="capacity-track" role="progressbar" aria-label="Kapasitas terpakai" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="capacity-bar">
+                <div class="capacity-fill" id="capacity-fill"></div>
+              </div>
+              <div class="capacity-ends num">
+                <span id="capacity-used">0 byte</span>
+                <span id="capacity-limit">2.331 byte</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel panel-pro" aria-labelledby="pro-title">
+            <div class="panel-head">
+              <h2 id="pro-title">Fitur Pro</h2>
+              <span class="pill pill-warning">Dalam pengembangan</span>
+            </div>
+            <ul class="locked-list">
+              <li>
+                <span class="locked-name">Logo di tengah QR</span>
+                <span class="locked-note">Logo usaha, tetap terbaca kamera.</span>
+              </li>
+              <li>
+                <span class="locked-name">QR dinamis</span>
+                <span class="locked-note">Ganti tujuan link setelah QR dicetak.</span>
+              </li>
+              <li>
+                <span class="locked-name">Statistik pindai</span>
+                <span class="locked-note">Jumlah pindaian per hari.</span>
+              </li>
+            </ul>
+            <a class="btn btn-secondary btn-block" href="#paket">Lihat paket Pro</a>
+          </section>
+        </div>
+      </div>
+
+      <aside class="ad-band" data-ad-slot="below-tool" aria-label="Iklan" hidden>
+        <div class="ad-head">
+          <span class="ad-label">Iklan</span>
+          <a href="#paket">Hapus iklan dengan Pro</a>
+        </div>
+        <div class="ad-body"></div>
+      </aside>
+    </main>
+
+    <!-- ===================== Paket ===================== -->
+    <main id="view-paket" class="view" data-view="paket" hidden>
+      <div class="title-row">
+        <h1>Paket</h1>
+        <p class="subline">Pro masih dalam pengembangan dan belum bisa dibeli. Semua yang ada di paket Gratis tetap gratis.</p>
+      </div>
+
+      <!-- Grid 1152 = 760 + 24 + 368 -->
+      <div class="plans">
+        <section class="panel panel-table" aria-labelledby="compare-title">
+          <h2 id="compare-title">Perbandingan paket</h2>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th scope="col">Fitur</th>
+                <th scope="col">Gratis</th>
+                <th scope="col">Pro</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Status</th>
+                <td><span class="pill pill-positive">Tersedia</span></td>
+                <td><span class="pill pill-warning">Dalam pengembangan</span></td>
+              </tr>
+              <tr>
+                <th scope="row">Harga</th>
+                <td class="num">Rp0</td>
+                <td>Belum ditetapkan</td>
+              </tr>
+              <tr>
+                <th scope="row">QR dari link atau teks</th>
+                <td>Ya</td>
+                <td>Ya</td>
+              </tr>
+              <tr>
+                <th scope="row">Unduh PNG dan SVG</th>
+                <td>Ya</td>
+                <td>Ya</td>
+              </tr>
+              <tr>
+                <th scope="row">Warna, ukuran, dan margin</th>
+                <td>Ya</td>
+                <td>Ya</td>
+              </tr>
+              <tr>
+                <th scope="row">Tanpa iklan</th>
+                <td><span class="dash" aria-label="Tidak ada">&ndash;</span></td>
+                <td>Direncanakan</td>
+              </tr>
+              <tr>
+                <th scope="row">Logo di tengah QR</th>
+                <td><span class="dash" aria-label="Tidak ada">&ndash;</span></td>
+                <td>Direncanakan</td>
+              </tr>
+              <tr>
+                <th scope="row">QR dinamis (tujuan bisa diganti)</th>
+                <td><span class="dash" aria-label="Tidak ada">&ndash;</span></td>
+                <td>Direncanakan</td>
+              </tr>
+              <tr>
+                <th scope="row">Statistik pindai</th>
+                <td><span class="dash" aria-label="Tidak ada">&ndash;</span></td>
+                <td>Direncanakan</td>
+              </tr>
+              <tr>
+                <th scope="row">Banyak QR sekaligus dari CSV</th>
+                <td><span class="dash" aria-label="Tidak ada">&ndash;</span></td>
+                <td>Direncanakan</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <div class="col col-plan-side">
+          <section class="panel panel-current" aria-labelledby="current-title">
+            <h2 id="current-title">Paket kamu</h2>
+            <p class="plan-name">Gratis</p>
+            <dl class="kv plan-kv">
+              <div class="kv-row"><dt>Harga</dt><dd class="num">Rp0</dd></div>
+              <div class="kv-row"><dt>Jumlah QR</dt><dd>Tanpa batas</dd></div>
+              <div class="kv-row"><dt>Iklan</dt><dd>Tampil</dd></div>
+              <div class="kv-row"><dt>Akun</dt><dd id="plan-account">Belum masuk</dd></div>
+            </dl>
+            <a class="btn btn-primary btn-block" href="#generator">Buat QR code</a>
+          </section>
+
+          <section class="panel panel-waitlist" aria-labelledby="waitlist-title">
+            <h2 id="waitlist-title">Daftar tunggu Pro</h2>
+            <p class="plan-note">Fitur dan harga Pro bisa berubah sebelum rilis. Daftar tunggu tidak mengikat dan tidak dipungut biaya.</p>
+            <a id="waitlist-button" class="btn btn-secondary btn-block" href="#paket" aria-disabled="true">Daftar tunggu belum dibuka</a>
+            <p class="plan-note" id="waitlist-note">Pendaftaran dibuka setelah jadwal rilis Pro ditetapkan.</p>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span>QRku</span>
+      <a href="privacy.html">Kebijakan privasi</a>
+      <a href="#paket">Paket</a>
+    </footer>
+  </div>
+
+  <!-- ===================== Dialog akun ===================== -->
+  <dialog id="account-dialog" class="dialog" aria-labelledby="account-dialog-title">
+    <form method="dialog" class="dialog-close-form">
+      <button class="icon-button" type="submit" aria-label="Tutup">
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </form>
+
+    <div id="account-signed-out">
+      <h2 id="account-dialog-title">Masuk ke QRku</h2>
+      <p class="dialog-text">Akun dipakai untuk paket Pro saat sudah rilis. Membuat dan mengunduh QR tidak butuh akun.</p>
+      <div id="google-button" class="google-button"></div>
+      <p id="auth-status" class="dialog-note" hidden></p>
+      <p id="auth-dev-hint" class="dialog-note" hidden>Untuk developer: isi <code>googleClientId</code> di <code>config.js</code> dan buka situs lewat http atau https. Langkahnya ada di README.</p>
+      <p class="dialog-note">Dengan masuk, kamu menyetujui <a href="privacy.html">kebijakan privasi</a>.</p>
+    </div>
+
+    <div id="account-signed-in" hidden>
+      <h2>Akun</h2>
+      <div class="profile">
+        <img id="profile-avatar" class="avatar avatar-large" alt="" width="40" height="40" referrerpolicy="no-referrer">
+        <div class="profile-text">
+          <span id="profile-name" class="profile-name"></span>
+          <span id="profile-email" class="profile-email"></span>
+        </div>
+      </div>
+      <dl class="kv kv-plain">
+        <div class="kv-row">
+          <dt>Paket</dt>
+          <dd>Gratis</dd>
+        </div>
+      </dl>
+      <div class="dialog-actions">
+        <a class="btn btn-secondary" href="#paket" id="profile-plans">Lihat paket Pro</a>
+        <button class="btn btn-secondary" type="button" id="sign-out">Keluar</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="vendor/qrcode.js"></script>
+  <script src="vendor/qrcode_UTF8.js"></script>
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="ui.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
